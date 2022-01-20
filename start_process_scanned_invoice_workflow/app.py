@@ -16,9 +16,11 @@
 import boto3
 import json
 import os
+from codeguru_profiler_agent import with_lambda_profiler
 
 client = boto3.client('stepfunctions')
 
+@with_lambda_profiler(profiling_group_name="aws-step-function-rpa-StartProcessScannedInvoiceWorkflow")
 def lambda_handler(event, context):
     print("Processing Event:")
     print(json.dumps(event))
@@ -35,10 +37,10 @@ def lambda_handler(event, context):
     status = message["Status"]
     response = client.start_execution(
         stateMachineArn = os.environ['STATE_MACHINE_ARN'],
-        input="{\"bucket_name\": \"" + bucket_name + 
-            "\",\"key\": \"" + key + 
+        input="{\"bucket_name\": \"" + bucket_name +
+            "\",\"key\": \"" + key +
             "\",\"job_name\": \"" + job_name +
-            "\",\"job_id\": \"" + job_id + 
+            "\",\"job_id\": \"" + job_id +
             "\",\"status\": \"" + status + "\"}"
     )
     return response["executionArn"]

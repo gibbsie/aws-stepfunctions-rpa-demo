@@ -16,9 +16,11 @@
 import boto3
 import json
 import os
+from codeguru_profiler_agent import with_lambda_profiler
 
 client = boto3.client('textract')
 
+@with_lambda_profiler(profiling_group_name="aws-step-function-rpa-StartDocumentAnalysis")
 def lambda_handler(event, context):
     print("Processing Event:")
     print(json.dumps(event))
@@ -41,5 +43,5 @@ def lambda_handler(event, context):
             'RoleArn': os.environ["TEXTRACT_PUBLISH_TO_SNS_ROLE_ARN"]
         }
     )
-    event["job_id"]=response["JobId"] 
+    event["job_id"]=response["JobId"]
     return event

@@ -19,6 +19,7 @@ import json
 import os
 import re
 import uuid
+from codeguru_profiler_agent import with_lambda_profiler
 
 s3_client = boto3.client('s3')
 dynamodb_client = boto3.client('dynamodb')
@@ -26,10 +27,11 @@ dynamodb_client = boto3.client('dynamodb')
 due_date_tags = ["pay on or before", "payment due date", "payment due"]
 amount_tags = ["total due", "new balance total", "total current charges", "please pay"]
 
+@with_lambda_profiler(profiling_group_name="aws-step-function-rpa-ProcessDocumentAnalysis")
 def lambda_handler(event, context):
     print("Processing Event:")
     print(json.dumps(event))
-    invoice_analyses_bucket_name = event["invoice_analyses_bucket_name"] 
+    invoice_analyses_bucket_name = event["invoice_analyses_bucket_name"]
     invoice_analyses_bucket_key = event["invoice_analyses_bucket_key"]
     response = s3_client.get_object(Bucket=invoice_analyses_bucket_name, Key=invoice_analyses_bucket_key)
     body = json.loads(response['Body'].read().decode("utf-8"))
@@ -72,7 +74,7 @@ def get_kv_relationship(key_map, value_map, block_map):
         val = get_text(value_block, block_map)
         kvs[key] = val
     return kvs
-    
+
 def find_value_block(key_block, value_map):
     for relationship in key_block['Relationships']:
         if relationship['Type'] == 'VALUE':
@@ -91,7 +93,7 @@ def get_text(result, blocks_map):
                         text += word['Text'] + ' '
                     if word['BlockType'] == 'SELECTION_ELEMENT':
                         if word['SelectionStatus'] == 'SELECTED':
-                            text += 'X '    
+                            text += 'X '
     return text
 
 def print_kvs(kvs):
@@ -107,7 +109,7 @@ def get_line_list(blocks):
     line_list = []
     for block in blocks:
         if block['BlockType'] == "LINE":
-            if 'Text' in block: 
+            if 'Text' in block:
                 line_list.append(block["Text"])
     return line_list
 

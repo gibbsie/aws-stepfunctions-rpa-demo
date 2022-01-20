@@ -17,10 +17,12 @@ import boto3
 import copy
 import json
 import os
+from codeguru_profiler_agent import with_lambda_profiler
 
 texttract_client = boto3.client('textract')
 s3_client = boto3.client('s3')
 
+@with_lambda_profiler(profiling_group_name="aws-step-function-rpa-SaveDocumentAnalysis")
 def lambda_handler(event, context):
     print("Processing Event:")
     print(json.dumps(event))
@@ -45,7 +47,7 @@ def lambda_handler(event, context):
     invoice_analyses_bucket_name = os.environ["ANALYSES_BUCKET_NAME"]
     invoice_analyses_bucket_key = "{}.json".format(event["key"])
     s3_client.put_object(
-        Bucket=invoice_analyses_bucket_name,  
+        Bucket=invoice_analyses_bucket_name,
         Key=invoice_analyses_bucket_key,
         Body=json.dumps(analysis).encode('utf-8')
     )

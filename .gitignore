@@ -1,0 +1,11 @@
+*.swp
+package-lock.json
+__pycache__
+.pytest_cache
+.env
+pyvenv.cfg
+.aws-sam
+.DS_Store
+lib/
+bin/
+samconfig.toml

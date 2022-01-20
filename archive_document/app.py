@@ -16,9 +16,11 @@
 import boto3
 import json
 import os
+from codeguru_profiler_agent import with_lambda_profiler
 
 s3_client = boto3.client('s3')
 
+@with_lambda_profiler(profiling_group_name="aws-lambda-aws-step-function-rpa-ArchiveDocument")
 def lambda_handler(event, context):
     print("Processing Event:")
     print(json.dumps(event))
